@@ -50,7 +50,9 @@ library
 test-suite basic-wrk-test-suite
   import: lang
   type: exitcode-stdio-1.0
-  main-is: Main.hs
+  main-is: Tests.hs
+  other-modules:
+    Test.Network.Wreq.Extra
   hs-source-dirs:
     src/test
   ghc-options: -rtsopts -threaded -with-rtsopts=-N

@@ -1,5 +1,8 @@
 {-# LANGUAGE ImportQualifiedPost, OverloadedStrings #-}
 
+module Test.Network.Wreq.Extra
+  where
+
 import Control.Lens ( (^.) )
 import Data.ByteString.Char8 qualified as BS
 import Data.ByteString.Lazy qualified as BL
@@ -12,8 +15,8 @@ import Test.Tasty
 import Test.Tasty.HUnit
 
 
-main :: IO ()
-main = defaultMain $ testGroup " tests"
+tests :: TestTree
+tests = testGroup " tests"
   [ testGroup "GET tests" $ testBadURL getAnyEither : map testGet testStatuses
   , testGroup "POST tests"
       $ testBadURL (flip postAnyEither ("foobar" :: BS.ByteString))
