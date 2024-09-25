@@ -3,14 +3,14 @@
 
 ## Synopsis
 
-Exploring non-throwing get and post calls with wreq
+Implemented non-exception-throwing get and post calls with wreq
 
 
 ## Description
 
-Exploring how wreq handles non-2XX codes and working out how to NOT throw an IO
-exception when this occurs. This could also be used as a library in this form
-where clients import getAny and postAny from Network.Wreq.Extra
+Versions of get and post that do not throw non-2XX response codes and/or also
+do not throw other exceptions, instead expressing them as the Left side of an
+Either.
 
 
 ## Getting source
