@@ -16,7 +16,7 @@ main :: IO ()
 main = defaultMain $ testGroup " tests"
   [ testGroup "GET tests" $ testBadURL getAnyEither : map testGet testStatuses
   , testGroup "POST tests"
-      $ (testBadURL $ flip postAnyEither ("foobar" :: BS.ByteString))
+      $ testBadURL (flip postAnyEither ("foobar" :: BS.ByteString))
       : map testPost testStatuses
   ]
 
@@ -48,10 +48,10 @@ testServerURL = "http://httpstat.us/"
 evaluateResponse :: Int -> BS.ByteString
   -> (String -> IO (Response BL.ByteString)) -> Assertion
 evaluateResponse code msg requestFunc = do
-  response <- requestFunc $ testServerURL <> (show code)
+  response <- requestFunc $ testServerURL <> show code
   code @=? response ^. responseStatus . statusCode
   -- Case is insignificant here and servers will respond with whatever case they feel like
-  (BS.map toUpper msg) @=? (BS.map toUpper $ response ^. responseStatus . statusMessage)
+  BS.map toUpper msg @=? BS.map toUpper (response ^. responseStatus . statusMessage)
 
 
 testGet :: (Int, BS.ByteString) -> TestTree
