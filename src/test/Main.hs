@@ -58,6 +58,7 @@ evaluateResponse :: Int -> BS.ByteString -> (String -> IO (Response BL.ByteStrin
 evaluateResponse code msg requestFunc = do
   response <- requestFunc $ "http://httpbin.org/status/" <> (show code)
   code @=? response ^. responseStatus . statusCode
+  -- Case is insignificant here and servers will respond with whatever case they feel like
   (BS.map toUpper msg) @=? (BS.map toUpper $ response ^. responseStatus . statusMessage)
 
 
