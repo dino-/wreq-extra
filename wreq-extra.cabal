@@ -2,11 +2,10 @@ cabal-version: 2.2
 
 name: wreq-extra
 version: 1.0
-synopsis: Exploring non-throwing get and post calls with wreq
-description: Exploring how wreq handles non-2XX codes and working out how to
-  NOT throw an IO exception when this occurs. This could also be used as a
-  library in this form where clients import getAny and postAny from
-  Network.Wreq.Extra
+synopsis: Implemented non-throwing get and post calls with wreq
+description: Versions of get and post that do not throw non-2XX response codes
+  and/or also do not throw other exceptions, instead expressing them as the
+  Left side of an Either.
 author: Dino Morelli
 maintainer: dino@ui3.info
 copyright: 2024 Dino Morelli
@@ -45,7 +44,7 @@ library
       base >=3 && <5
     , bytestring
     , http-client
-    , microlens
+    , lens
     , wreq >=0.5.0.0
 
 test-suite basic-wrk-test-suite
@@ -59,7 +58,7 @@ test-suite basic-wrk-test-suite
       base >=3 && <5
     , bytestring
     , http-client
-    , microlens
+    , lens
     , string-conv
     , tasty
     , tasty-hunit

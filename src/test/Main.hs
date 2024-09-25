@@ -1,10 +1,10 @@
 {-# LANGUAGE ImportQualifiedPost, OverloadedStrings #-}
 
+import Control.Lens ( (^.) )
 import Data.ByteString.Char8 qualified as BS
 import Data.ByteString.Lazy qualified as BL
 import Data.Char ( toUpper )
 import Data.String.Conv ( toS )
-import Lens.Micro ( (^.) )
 import Network.HTTP.Client.Internal ( HttpException )
 import Network.Wreq ( Response, responseStatus, statusCode, statusMessage )
 import Network.Wreq.Extra ( getAny, getAnyEither, postAny, postAnyEither )

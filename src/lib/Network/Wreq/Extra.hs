@@ -8,9 +8,9 @@ module Network.Wreq.Extra
   )
   where
 
+import Control.Lens ( set )
 import Control.Exception ( try )
 import Data.ByteString.Lazy ( ByteString )
-import Lens.Micro ( set )
 import Network.HTTP.Client ( HttpException )
 import Network.Wreq
   ( Options, Response
