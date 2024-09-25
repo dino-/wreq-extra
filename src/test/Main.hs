@@ -14,66 +14,58 @@ import Test.Tasty.HUnit
 
 main :: IO ()
 main = defaultMain $ testGroup " tests"
-  [ getTests
-  , postTests
+  [ testGroup "GET tests" $ testBadURL getAnyEither : map testGet testStatuses
+  , testGroup "POST tests"
+      $ (testBadURL $ flip postAnyEither ("foobar" :: BS.ByteString))
+      : map testPost testStatuses
   ]
 
 
 -- NOTE: 3XX codes are for redirection and wreq follows the Location header to
 -- the new URI, resulting in a 200 OK. So those codes are not a good test here.
 
-getTests :: TestTree
-getTests = testGroup "GET tests"
-  [ testGet 200 "OK"
-  , testGet 202 "Accepted"
-  , testGet 226 "IM Used"
-  , testGet 400 "Bad Request"
-  , testGet 404 "Not Found"
-  , testGet 407 "Proxy Authentication Required"
-  , testGet 418 "I'm a teapot"
-  , testGet 500 "Internal Server Error"
-  , testGet 503 "Service Unavailable"
-  , testGet 507 "Insufficient Storage"
-  , testBadURL getAnyEither
+testStatuses :: [(Int, BS.ByteString)]
+testStatuses =
+  [ (200, "OK")
+  , (202, "Accepted")
+  , (226, "IM Used")
+  , (400, "Bad Request")
+  , (404, "Not Found")
+  , (407, "Proxy Authentication Required")
+  , (418, "I'm a teapot")
+  , (500, "Internal Server Error")
+  , (503, "Service Unavailable")
+  , (507, "Insufficient Storage")
   ]
 
 
-postTests :: TestTree
-postTests = testGroup "POST tests"
-  [ testPost 200 "OK"
-  , testPost 202 "Accepted"
-  , testPost 226 "IM Used"
-  , testPost 400 "Bad Request"
-  , testPost 404 "Not Found"
-  , testPost 407 "Proxy Authentication Required"
-  , testPost 418 "I'm a teapot"
-  , testPost 500 "Internal Server Error"
-  , testPost 503 "Service Unavailable"
-  , testPost 507 "Insufficient Storage"
-  , testBadURL $ flip postAnyEither ("foobar" :: BS.ByteString)
-  ]
+testServerURL :: String
+-- This server seems to sometimes get overloaded
+-- testServerURL = "http://httpbin.org/status/"
+testServerURL = "http://httpstat.us/"
 
 
-evaluateResponse :: Int -> BS.ByteString -> (String -> IO (Response BL.ByteString)) -> Assertion
+evaluateResponse :: Int -> BS.ByteString
+  -> (String -> IO (Response BL.ByteString)) -> Assertion
 evaluateResponse code msg requestFunc = do
-  response <- requestFunc $ "http://httpbin.org/status/" <> (show code)
+  response <- requestFunc $ testServerURL <> (show code)
   code @=? response ^. responseStatus . statusCode
   -- Case is insignificant here and servers will respond with whatever case they feel like
   (BS.map toUpper msg) @=? (BS.map toUpper $ response ^. responseStatus . statusMessage)
 
 
-testGet :: Int -> BS.ByteString -> TestTree
-testGet code msg = testCase (show code <> " " <> toS msg) $
+testGet :: (Int, BS.ByteString) -> TestTree
+testGet (code, msg) = testCase ("getAny " <> show code <> " " <> toS msg) $
   evaluateResponse code msg getAny
 
 
-testPost :: Int -> BS.ByteString -> TestTree
-testPost code msg = testCase (show code <> " " <> toS msg) $
+testPost :: (Int, BS.ByteString) -> TestTree
+testPost (code, msg) = testCase ("postAny " <> show code <> " " <> toS msg) $
   evaluateResponse code msg $ flip postAny ("foobar" :: BS.ByteString)
 
 
 testBadURL :: (String -> IO (Either HttpException (Response BL.ByteString))) -> TestTree
-testBadURL requestFunc = testCase "Bad URL sent to getAnyEither" $ do
+testBadURL requestFunc = testCase "Bad URL sent to getXXXEither" $ do
   eResponse <- requestFunc "notAValidURL/"
   case eResponse of
     Right _ -> fail "This should not have succeeded"
