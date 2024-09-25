@@ -57,6 +57,7 @@ test-suite basic-wrk-test-suite
   build-depends:
       base >=3 && <5
     , bytestring
+    , http-client
     , microlens
     , string-conv
     , tasty
