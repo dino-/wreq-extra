@@ -19,9 +19,13 @@ lenientResponseOptions :: Options
 lenientResponseOptions = set checkResponse (Just $ \_ _ -> return ()) defaults
 
 
+-- | Issue a GET request and responding with whatever comes back, no throwing
+--   exceptions
 getAny :: String -> IO (Response ByteString)
 getAny = getWith lenientResponseOptions
 
 
+-- | Issue a POST request and responding with whatever comes back, no throwing
+--   exceptions
 postAny :: Postable a => String -> a -> IO (Response ByteString)
 postAny = postWith lenientResponseOptions
