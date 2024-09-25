@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Network.Wreq.Extra
   ( getAny
   , getAnyEither
