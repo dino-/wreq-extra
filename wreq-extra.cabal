@@ -45,7 +45,7 @@ library
       base >=3 && <5
     , bytestring
     , microlens
-    , wreq
+    , wreq >=0.5.0.0
 
 test-suite basic-wrk-test-suite
   import: lang
@@ -62,5 +62,5 @@ test-suite basic-wrk-test-suite
     , string-conv
     , tasty
     , tasty-hunit
-    , wreq
+    , wreq >=0.5.0.0
     , wreq-extra
