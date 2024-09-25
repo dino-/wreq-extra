@@ -5,9 +5,9 @@ import Data.ByteString.Lazy qualified as BL
 import Data.Char ( toUpper )
 import Data.String.Conv ( toS )
 import Lens.Micro ( (^.) )
-import Network.HTTP.Client.Internal ( Response )
-import Network.Wreq ( responseStatus, statusCode, statusMessage )
-import Network.Wreq.Extra ( getAny, postAny )
+import Network.HTTP.Client.Internal ( HttpException )
+import Network.Wreq ( Response, responseStatus, statusCode, statusMessage )
+import Network.Wreq.Extra ( getAny, getAnyEither, postAny, postAnyEither )
 import Test.Tasty
 import Test.Tasty.HUnit
 
@@ -34,6 +34,7 @@ getTests = testGroup "GET tests"
   , testGet 500 "Internal Server Error"
   , testGet 503 "Service Unavailable"
   , testGet 507 "Insufficient Storage"
+  , testBadURL getAnyEither
   ]
 
 
@@ -49,16 +50,13 @@ postTests = testGroup "POST tests"
   , testPost 500 "Internal Server Error"
   , testPost 503 "Service Unavailable"
   , testPost 507 "Insufficient Storage"
+  , testBadURL $ flip postAnyEither ("foobar" :: BS.ByteString)
   ]
-
-
-testServerUrl :: String
-testServerUrl = "http://httpbin.org/status/"
 
 
 evaluateResponse :: Int -> BS.ByteString -> (String -> IO (Response BL.ByteString)) -> Assertion
 evaluateResponse code msg requestFunc = do
-  response <- requestFunc $ testServerUrl <> (show code)
+  response <- requestFunc $ "http://httpbin.org/status/" <> (show code)
   code @=? response ^. responseStatus . statusCode
   (BS.map toUpper msg) @=? (BS.map toUpper $ response ^. responseStatus . statusMessage)
 
@@ -71,3 +69,11 @@ testGet code msg = testCase (show code <> " " <> toS msg) $
 testPost :: Int -> BS.ByteString -> TestTree
 testPost code msg = testCase (show code <> " " <> toS msg) $
   evaluateResponse code msg $ flip postAny ("foobar" :: BS.ByteString)
+
+
+testBadURL :: (String -> IO (Either HttpException (Response BL.ByteString))) -> TestTree
+testBadURL requestFunc = testCase "Bad URL sent to getAnyEither" $ do
+  eResponse <- requestFunc "notAValidURL/"
+  case eResponse of
+    Right _ -> fail "This should not have succeeded"
+    Left _ -> pure ()
